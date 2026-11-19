@@ -1,0 +1,71 @@
+/* Black & White style. Active when <html data-accent="mono">. Works with light and dark. */
+
+/* ---------- Light + mono ---------- */
+[data-accent="mono"] {
+  --primary: #111111;
+  --primary-dark: #000000;
+  --secondary: #444444;
+  --success: #333333;
+  --warning: #666666;
+  --danger: #1a1a1a;
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #111111;
+  --muted: #666666;
+  --border: #dddddd;
+}
+
+/* ---------- Dark + mono ---------- */
+[data-accent="mono"][data-theme="dark"] {
+  --primary: #f5f5f5;
+  --primary-dark: #ffffff;
+  --secondary: #bdbdbd;
+  --success: #d0d0d0;
+  --warning: #a0a0a0;
+  --danger: #e5e5e5;
+  --bg: #0a0a0a;
+  --card: #161616;
+  --text: #f0f0f0;
+  --muted: #9a9a9a;
+  --border: #2e2e2e;
+}
+
+/* Text that sits on a "primary" background must flip in dark mode */
+[data-accent="mono"][data-theme="dark"] .btn:not(.btn-ghost),
+[data-accent="mono"][data-theme="dark"] .nav-link.active,
+[data-accent="mono"][data-theme="dark"] .user-chip.active,
+[data-accent="mono"][data-theme="dark"] .chip.active,
+[data-accent="mono"][data-theme="dark"] .cal-day.lvl-4 { color: #111111; }
+
+/* Gradients */
+[data-accent="mono"] .banner { background: linear-gradient(135deg, #111111, #4a4a4a); color: #fff; }
+[data-accent="mono"][data-theme="dark"] .banner { background: linear-gradient(135deg, #262626, #4d4d4d); }
+[data-accent="mono"] .avatar { background: linear-gradient(135deg, #444444, #888888); color: #fff; }
+
+/* Soft tinted backgrounds that used the indigo color */
+[data-accent="mono"] .stat-icon,
+[data-accent="mono"] .widget-stat-icon,
+[data-accent="mono"] .lib-icon,
+[data-accent="mono"] .badge { background: rgba(128, 128, 128, 0.18); color: var(--text); }
+[data-accent="mono"] .widget-drag-handle { background: rgba(128, 128, 128, 0.1); }
+[data-accent="mono"] .widget-editing { box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.18); }
+
+/* Priority badges: solid = high, soft = medium, faint = low */
+[data-accent="mono"] .badge.high { background: var(--text); color: var(--bg); }
+[data-accent="mono"] .badge.medium { background: rgba(128, 128, 128, 0.35); color: var(--text); }
+[data-accent="mono"] .badge.low { background: rgba(128, 128, 128, 0.14); color: var(--muted); }
+
+/* Habit calendar levels */
+[data-accent="mono"] .cal-day.lvl-1 { background: rgba(128, 128, 128, 0.22); }
+[data-accent="mono"] .cal-day.lvl-2 { background: rgba(128, 128, 128, 0.42); }
+[data-accent="mono"] .cal-day.lvl-3 { background: #777777; color: #fff; }
+
+/* Remove color from emoji icons */
+[data-accent="mono"] .nav-icon,
+[data-accent="mono"] .logo-icon,
+[data-accent="mono"] .stat-icon,
+[data-accent="mono"] .widget-icon,
+[data-accent="mono"] .widget-stat-icon,
+[data-accent="mono"] .lib-icon,
+[data-accent="mono"] .emoji,
+[data-accent="mono"] .widget-quote { filter: grayscale(1); }

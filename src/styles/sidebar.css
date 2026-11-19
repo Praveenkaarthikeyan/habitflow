@@ -1,0 +1,96 @@
+/* Loaded AFTER global.css, so these rules override the old sidebar rules. */
+.app { --sidebar-w: 72px; }
+.app.sidebar-expanded { --sidebar-w: 240px; }
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 14px;
+  transition: width 0.25s ease, transform 0.25s ease;
+}
+.main { transition: margin-left 0.25s ease; }
+
+.sidebar-head { display: flex; align-items: center; height: 44px; margin-bottom: 18px; }
+.logo-icon { width: 44px; text-align: center; font-size: 1.5rem; flex-shrink: 0; }
+.logo-text { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+.sidebar-nav { flex: 1; }
+
+.nav-link { position: relative; gap: 0; padding: 11px 0; }
+.nav-link:focus-visible, .sidebar-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.nav-icon { width: 44px; text-align: center; font-size: 1.15rem; flex-shrink: 0; }
+
+.nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 180px;
+  opacity: 1;
+  transition: opacity 0.2s ease, max-width 0.25s ease;
+}
+.sidebar:not(.expanded) .nav-label { opacity: 0; max-width: 0; }
+
+.sidebar-foot { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; }
+.sidebar-toggle {
+  display: flex; align-items: center; position: relative;
+  padding: 9px 0; background: transparent; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 1rem;
+}
+.sidebar-toggle .nav-icon { width: 42px; }
+.sidebar-toggle:hover { background: var(--bg); color: var(--text); }
+
+/* Tooltips (collapsed only) */
+.sidebar:not(.expanded) [data-tooltip]:hover::after,
+.sidebar:not(.expanded) [data-tooltip]:focus-visible::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 200;
+  box-shadow: var(--shadow);
+}
+
+/* Scrim used only on tablet */
+.scrim { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 45; }
+
+/* Tablet: content stays put, expanded sidebar overlays it */
+@media (min-width: 861px) and (max-width: 1024px) {
+  .app.sidebar-expanded .main { margin-left: 72px; }
+  .app.sidebar-expanded .scrim { display: block; }
+  .app.sidebar-expanded .sidebar { box-shadow: 8px 0 30px rgba(0, 0, 0, 0.18); }
+}
+
+/* Mobile: drawer with labels always visible */
+@media (max-width: 860px) {
+  .app, .app.sidebar-expanded { --sidebar-w: 240px; }
+  .sidebar .nav-label,
+  .sidebar:not(.expanded) .nav-label { opacity: 1; max-width: 180px; }
+  .sidebar-toggle { display: none; }
+  .sidebar [data-tooltip]::after { display: none !important; }
+}
+/* ---------- Avatar + user chip ---------- */
+.avatar { flex-shrink: 0; }
+.avatar-img { display: block; object-fit: cover; border-radius: 50%; }
+
+.user-chip {
+  display: flex; align-items: center; position: relative;
+  padding: 4px; min-height: 44px; border-radius: 10px; color: var(--text);
+}
+.user-chip:hover { background: var(--bg); }
+.user-chip.active { background: var(--primary); color: #fff; }
+.user-name { font-weight: 600; font-size: 0.88rem; text-indent: 8px; }
+
+.avatar-lg { width: 96px; height: 96px; }
+.preview-box {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 14px; border: 1px dashed var(--primary); border-radius: 12px; margin-top: 14px;
+}
+.preview-box img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; }

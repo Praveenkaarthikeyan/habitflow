@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext.jsx";
+import Avatar from "./Avatar.jsx";
 
 export default function Navbar({ onMenuClick }) {
   const { theme, toggleTheme } = useTheme();
@@ -18,7 +19,7 @@ export default function Navbar({ onMenuClick }) {
           {theme === "light" ? "🌙" : "☀️"}
         </button>
         <Link to="/notifications" className="icon-btn" aria-label="Notifications">🔔</Link>
-        <Link to="/profile" className="avatar">S</Link>
+        <Link to="/profile" aria-label="Profile"><Avatar size={38} /></Link>
       </div>
     </header>
   );
