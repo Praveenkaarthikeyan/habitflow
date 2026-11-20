@@ -11,6 +11,7 @@ const links = [
   { to: "/statistics", label: "Statistics", icon: "📊" },
   { to: "/friends", label: "Friends", icon: "👥" },
   { to: "/notifications", label: "Notifications", icon: "🔔" },
+  { to: "/blogs", label: "Blogs", icon: "✍️" },
   { to: "/profile", label: "Profile & Settings", icon: "⚙️" },
 ];
 
