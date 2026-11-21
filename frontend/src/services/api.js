@@ -57,6 +57,8 @@ export const blogApi = {
     const qs = new URLSearchParams(params).toString();
     return request(`/blogs${qs ? `?${qs}` : ""}`);
   },
+  categories: () => request("/blogs/categories"),
+  get: (id) => request(`/blogs/${id}`),
   create: (data) => request("/blogs", { method: "POST", body: data, auth: true }),
   update: (id, data) => request(`/blogs/${id}`, { method: "PUT", body: data, auth: true }),
   remove: (id) => request(`/blogs/${id}`, { method: "DELETE", auth: true }),

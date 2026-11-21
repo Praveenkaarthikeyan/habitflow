@@ -1,12 +1,15 @@
 import { blogService } from "../services/blogService.js";
 import AppError from "../utils/AppError.js";
 
-// MongoDB ids are 24 hex characters.
 function parseId(req) {
   const id = req.params.id;
   if (!/^[a-f\d]{24}$/i.test(id)) throw new AppError(400, "Invalid blog id.");
   return id;
 }
+
+export const getCategories = (req, res) => {
+  res.status(200).json({ success: true, data: blogService.categories() });
+};
 
 export const getBlogs = async (req, res) => {
   const { items, pagination } = await blogService.list(req.query);

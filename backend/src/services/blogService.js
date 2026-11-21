@@ -1,12 +1,13 @@
 import { Blog } from "../models/Blog.js";
 import AppError from "../utils/AppError.js";
 import escapeRegex from "../utils/escapeRegex.js";
+import { BLOG_CATEGORIES } from "../utils/blogCategories.js";
 
-// Shape sent to the frontend (same fields as before, so React barely changes).
 const toBlog = (b) => ({
   id: b.id,
   title: b.title,
   content: b.content,
+  category: b.category || "General",
   authorId: String(b.author?._id ?? b.author ?? ""),
   authorName: b.author?.name ?? "Unknown author",
   createdAt: b.createdAt,
@@ -19,14 +20,24 @@ async function getOrThrow(id) {
   return blog;
 }
 
-// Only the author may change or delete a blog.
 function assertOwner(blog, user) {
   if (String(blog.author?._id) !== user.id) throw new AppError(403, "You can only modify your own blogs.");
 }
 
 export const blogService = {
-  async list({ search, page = 1, limit = 10 }) {
+  categories: () => BLOG_CATEGORIES,
+
+  async list({ search, category, page = 1, limit = 10 }) {
     const filter = {};
+
+    if (category) {
+      if (!BLOG_CATEGORIES.includes(category)) throw new AppError(400, "Unknown category.");
+      // Blogs made before categories existed have no field, so treat them as "General".
+      filter.category = category === "General"
+        ? { $in: ["General", null] }
+        : category;
+    }
+
     if (search) {
       const rx = new RegExp(escapeRegex(String(search).slice(0, 100)), "i");
       filter.$or = [{ title: rx }, { content: rx }];
@@ -65,6 +76,7 @@ export const blogService = {
     assertOwner(blog, user);
     blog.title = data.title;
     blog.content = data.content;
+    blog.category = data.category;
     await blog.save();
     return toBlog(blog);
   },

@@ -13,6 +13,8 @@ import Friends from "./pages/Friends.jsx";
 import Notifications from "./pages/Notifications.jsx";
 import Profile from "./pages/Profile.jsx";
 import Blogs from "./pages/Blogs.jsx";
+import BlogDetail from "./pages/BlogDetail.jsx";
+import BlogEdit from "./pages/BlogEdit.jsx";
 
 export default function App() {
   return (
@@ -32,6 +34,8 @@ export default function App() {
         <Route path="/friends" element={<Friends />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/blogs" element={<Blogs />} />
+        <Route path="/blogs/:id" element={<BlogDetail />} />
+        <Route path="/blogs/:id/edit" element={<BlogEdit />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

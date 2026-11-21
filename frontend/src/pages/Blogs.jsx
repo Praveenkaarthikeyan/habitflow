@@ -1,72 +1,96 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { blogApi } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import EmptyState from "../components/EmptyState.jsx";
+import BlogForm from "../components/BlogForm.jsx";
 
-const emptyForm = { title: "", content: "" };
+const emptyForm = { title: "", content: "", category: "General" };
+const excerpt = (text, max = 160) => (text.length > max ? `${text.slice(0, max).trimEnd()}...` : text);
 
 export default function Blogs() {
   const { user } = useAuth();
   const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [page, setPage] = useState(1);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
+  const [category, setCategory] = useState("");
+  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [formKey, setFormKey] = useState(0); // changing it resets the create form
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [formError, setFormError] = useState(null);
+  const [listError, setListError] = useState(null);
+
+  useEffect(() => {
+    blogApi.categories().then((res) => setCategories(res.data)).catch(() => {});
+  }, []);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await blogApi.list({ page, limit: 5 });
+      const params = { page, limit: 5 };
+      if (query) params.search = query;
+      if (category) params.category = category;
+      const res = await blogApi.list(params);
       setBlogs(res.data);
       setPagination(res.pagination);
-      setError(null);
+      setListError(null);
     } catch (err) {
-      setError({ message: err.message });
+      setListError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, query, category]);
 
   useEffect(() => { load(); }, [load]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleCreate = async (form) => {
     try {
       setSaving(true);
-      setError(null);
-      if (editingId) await blogApi.update(editingId, form);
-      else await blogApi.create(form);
-      setForm(emptyForm);
-      setEditingId(null);
-      setPage(1);
-      await load();
+      setFormError(null);
+      await blogApi.create(form);
+      setFormKey((k) => k + 1);
+      if (page === 1) await load();
+      else setPage(1);
     } catch (err) {
-      setError({ message: err.message, details: err.details });
+      setFormError({ message: err.message, details: err.details });
     } finally {
       setSaving(false);
     }
   };
 
-  const startEdit = (b) => {
-    setEditingId(b.id);
-    setForm({ title: b.title, content: b.content });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const cancelEdit = () => { setEditingId(null); setForm(emptyForm); };
-
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this blog?")) return;
     try {
       await blogApi.remove(id);
-      await load();
+      if (blogs.length === 1 && page > 1) setPage(page - 1);
+      else await load();
     } catch (err) {
-      setError({ message: err.message });
+      setListError(err.message);
     }
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setPage(1);
+    setQuery(search.trim());
+  };
+
+  const pickCategory = (c) => {
+    setCategory(c);
+    setPage(1);
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setQuery("");
+    setCategory("");
+    setPage(1);
+  };
+
+  const filtering = Boolean(query || category);
 
   return (
     <>
@@ -77,43 +101,63 @@ export default function Blogs() {
         </div>
       </div>
 
-      <form className="card mb" onSubmit={handleSubmit}>
-        <h2>{editingId ? "Edit blog" : "Create blog"}</h2>
-        {error && (
-          <div className="auth-error" role="alert">
-            {error.message}
-            {error.details?.length > 0 && <ul>{error.details.map((d) => <li key={d}>{d}</li>)}</ul>}
-          </div>
+      <BlogForm
+        key={formKey}
+        heading="Create blog"
+        initial={emptyForm}
+        categories={categories}
+        submitLabel="Publish"
+        busy={saving}
+        error={formError}
+        onSubmit={handleCreate}
+      />
+
+      <form className="row mb" onSubmit={handleSearch}>
+        <input placeholder="Search blogs..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <button className="btn btn-ghost" type="submit" style={{ flexShrink: 0 }}>Search</button>
+        {filtering && (
+          <button className="btn btn-ghost" type="button" style={{ flexShrink: 0 }} onClick={clearFilters}>Clear</button>
         )}
-        <div className="form-group"><label>Title</label>
-          <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-        <div className="form-group"><label>Content</label>
-          <textarea rows="4" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} /></div>
-        <div className="row">
-          <button className="btn" type="submit" disabled={saving}>
-            {saving ? "Saving..." : editingId ? "Save changes" : "Publish"}
-          </button>
-          {editingId && <button className="btn btn-ghost" type="button" onClick={cancelEdit}>Cancel</button>}
-        </div>
       </form>
+
+      <div className="tabs">
+        <button className={`chip ${category === "" ? "active" : ""}`} onClick={() => pickCategory("")}>All</button>
+        {categories.map((c) => (
+          <button key={c} className={`chip ${category === c ? "active" : ""}`} onClick={() => pickCategory(c)}>{c}</button>
+        ))}
+      </div>
+
+      {listError && <div className="auth-error" role="alert">{listError}</div>}
 
       {loading ? (
         <div className="card"><p className="muted">Loading blogs...</p></div>
       ) : blogs.length === 0 ? (
-        <div className="card"><EmptyState emoji="✍️" title="No blogs yet" message="Publish the first one above." /></div>
+        <div className="card">
+          <EmptyState
+            emoji="✍️"
+            title={filtering ? "No blogs match your filters" : "No blogs yet"}
+            message={filtering ? "Try a different word or category." : "Publish the first one above."}
+          />
+        </div>
       ) : (
         <div className="grid">
           {blogs.map((b) => (
             <article className="card blog-card" key={b.id}>
-              <h3>{b.title}</h3>
-              <div className="muted">By {b.authorName} · {new Date(b.createdAt).toLocaleString("en-IN")}</div>
-              <p className="blog-content">{b.content}</p>
-              {b.authorId === user.id && (
-                <div className="row">
-                  <button className="btn btn-sm btn-ghost" onClick={() => startEdit(b)}>Edit</button>
-                  <button className="btn btn-sm btn-ghost" onClick={() => handleDelete(b.id)}>Delete</button>
-                </div>
-              )}
+              <h3><Link to={`/blogs/${b.id}`} className="blog-title-link">{b.title}</Link></h3>
+              <div className="row" style={{ flexWrap: "wrap", margin: "4px 0" }}>
+                <span className="badge">{b.category}</span>
+                <span className="muted">By {b.authorName} · {new Date(b.createdAt).toLocaleString("en-IN")}</span>
+              </div>
+              <p className="blog-content">{excerpt(b.content)}</p>
+              <div className="row">
+                <Link to={`/blogs/${b.id}`} className="btn btn-sm">Read more</Link>
+                {b.authorId === user.id && (
+                  <>
+                    <Link to={`/blogs/${b.id}/edit`} className="btn btn-sm btn-ghost">Edit</Link>
+                    <button className="btn btn-sm btn-ghost" onClick={() => handleDelete(b.id)}>Delete</button>
+                  </>
+                )}
+              </div>
             </article>
           ))}
         </div>
