@@ -16,6 +16,16 @@ export const getBlogs = async (req, res) => {
   res.status(200).json({ success: true, data: items, pagination });
 };
 
+// Only the logged-in user's blogs: the author comes from the verified token, never from the request.
+export const getMyBlogs = async (req, res) => {
+  const { items, pagination } = await blogService.list(req.query, { author: req.user.id });
+  res.status(200).json({ success: true, data: items, pagination });
+};
+
+export const getMyStats = async (req, res) => {
+  res.status(200).json({ success: true, data: await blogService.myStats(req.user) });
+};
+
 export const getBlog = async (req, res) => {
   res.status(200).json({ success: true, data: await blogService.get(parseId(req)) });
 };

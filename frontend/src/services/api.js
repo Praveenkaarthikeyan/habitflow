@@ -46,17 +46,26 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   return json;
 }
 
+const withQuery = (path, params = {}) => {
+  const qs = new URLSearchParams(params).toString();
+  return qs ? `${path}?${qs}` : path;
+};
+
 export const authApi = {
   register: (data) => request("/auth/register", { method: "POST", body: data }),
   login: (data) => request("/auth/login", { method: "POST", body: data }),
   me: () => request("/auth/me", { auth: true }),
 };
 
+export const userApi = {
+  updateProfile: (data) => request("/users/me", { method: "PUT", body: data, auth: true }),
+  changePassword: (data) => request("/users/me/password", { method: "PUT", body: data, auth: true }),
+};
+
 export const blogApi = {
-  list: (params = {}) => {
-    const qs = new URLSearchParams(params).toString();
-    return request(`/blogs${qs ? `?${qs}` : ""}`);
-  },
+  list: (params) => request(withQuery("/blogs", params)),
+  mine: (params) => request(withQuery("/blogs/mine", params), { auth: true }),
+  myStats: () => request("/blogs/mine/stats", { auth: true }),
   categories: () => request("/blogs/categories"),
   get: (id) => request(`/blogs/${id}`),
   create: (data) => request("/blogs", { method: "POST", body: data, auth: true }),

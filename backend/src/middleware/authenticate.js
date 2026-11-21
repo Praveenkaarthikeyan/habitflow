@@ -11,12 +11,12 @@ export default async function authenticate(req, res, next) {
 
   try {
     const payload = jwt.verify(token, env.jwtSecret);
-    req.user = await authService.getUser(payload.sub); // looks the user up in MongoDB
+    req.user = await authService.getUser(payload.sub, payload.iat);
     next();
   } catch (err) {
     if (err instanceof AppError) return next(err);
     if (err.name === "TokenExpiredError") return next(new AppError(401, "Your session has expired. Please log in again."));
     if (err.name === "JsonWebTokenError") return next(new AppError(401, "Invalid token. Please log in again."));
-    next(err); // a real problem (for example the database), so let the error handler report it
+    next(err);
   }
 }

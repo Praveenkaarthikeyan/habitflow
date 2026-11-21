@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
-import { ProfileProvider } from "./context/ProfileContext.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { ProfileProvider } from "./context/ProfileContext.jsx";
 import "./styles/global.css";
 import "./styles/sidebar.css";
 import "./styles/dashboard.css";
@@ -16,11 +16,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <ProfileProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <ProfileProvider>
             <App />
-          </AuthProvider>
-        </ProfileProvider>
+          </ProfileProvider>
+        </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>

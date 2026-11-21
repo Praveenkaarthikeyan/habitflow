@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import ProgressBar from "../components/ProgressBar.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import { SimpleBarChart, SimpleLineChart, SimplePieChart } from "../components/Charts.jsx";
+import MyBlogsWidget from "./MyBlogsWidget.jsx";
 
 // Every widget gets { data, m, actions }: raw data, derived metrics, and handlers.
 

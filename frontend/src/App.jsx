@@ -15,6 +15,7 @@ import Profile from "./pages/Profile.jsx";
 import Blogs from "./pages/Blogs.jsx";
 import BlogDetail from "./pages/BlogDetail.jsx";
 import BlogEdit from "./pages/BlogEdit.jsx";
+import MyBlogs from "./pages/MyBlogs.jsx";
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/blogs/:id" element={<BlogDetail />} />
         <Route path="/blogs/:id/edit" element={<BlogEdit />} />
+        <Route path="/my-blogs" element={<MyBlogs />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

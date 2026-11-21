@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Blog } from "../models/Blog.js";
 import AppError from "../utils/AppError.js";
 import escapeRegex from "../utils/escapeRegex.js";
@@ -27,15 +28,13 @@ function assertOwner(blog, user) {
 export const blogService = {
   categories: () => BLOG_CATEGORIES,
 
-  async list({ search, category, page = 1, limit = 10 }) {
-    const filter = {};
+  // baseFilter lets callers restrict the list, e.g. { author: userId } for "my blogs".
+  async list({ search, category, page = 1, limit = 10 }, baseFilter = {}) {
+    const filter = { ...baseFilter };
 
     if (category) {
       if (!BLOG_CATEGORIES.includes(category)) throw new AppError(400, "Unknown category.");
-      // Blogs made before categories existed have no field, so treat them as "General".
-      filter.category = category === "General"
-        ? { $in: ["General", null] }
-        : category;
+      filter.category = category === "General" ? { $in: ["General", null] } : category;
     }
 
     if (search) {
@@ -58,6 +57,26 @@ export const blogService = {
     return {
       items: items.map(toBlog),
       pagination: { page: safePage, limit: safeLimit, total, totalPages: Math.max(1, Math.ceil(total / safeLimit)) },
+    };
+  },
+
+  // Numbers for the user's dashboard. Aggregation doesn't auto-cast ids, so convert explicitly.
+  async myStats(user) {
+    const authorId = new mongoose.Types.ObjectId(user.id);
+
+    const rows = await Blog.aggregate([
+      { $match: { author: authorId } },
+      { $group: { _id: { $ifNull: ["$category", "General"] }, count: { $sum: 1 } } },
+      { $sort: { count: -1, _id: 1 } },
+    ]);
+    const byCategory = rows.map((r) => ({ category: r._id, count: r.count }));
+    const total = byCategory.reduce((sum, r) => sum + r.count, 0);
+
+    const latest = await Blog.findOne({ author: authorId }).sort({ createdAt: -1 }).select("title createdAt");
+    return {
+      total,
+      byCategory,
+      latest: latest ? { id: latest.id, title: latest.title, createdAt: latest.createdAt } : null,
     };
   },
 

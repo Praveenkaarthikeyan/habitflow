@@ -12,6 +12,7 @@ const links = [
   { to: "/friends", label: "Friends", icon: "👥" },
   { to: "/notifications", label: "Notifications", icon: "🔔" },
   { to: "/blogs", label: "Blogs", icon: "✍️" },
+  { to: "/my-blogs", label: "My Blogs", icon: "📝" },
   { to: "/profile", label: "Profile & Settings", icon: "⚙️" },
 ];
 

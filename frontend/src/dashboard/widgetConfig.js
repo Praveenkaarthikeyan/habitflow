@@ -48,6 +48,7 @@ const defs = [
   { id: "notifications", name: "Notifications", icon: "🔔", category: "General", kind: "list", description: "Newest notifications, unread first." },
   { id: "quote", name: "Motivational Quote", icon: "💬", category: "General", kind: "stat", w: 4, description: "A daily push to keep going." },
   { id: "quickActions", name: "Quick Actions", icon: "🚀", category: "General", kind: "list", h: 3, description: "Shortcuts to common pages." },
+  { id: "myBlogs", name: "My Blogs", icon: "✍️", category: "General", kind: "list", description: "Your five most recent blog posts." },
 ];
 
 export const WIDGETS = Object.fromEntries(defs.map((d) => [d.id, { ...KINDS[d.kind], ...d }]));
