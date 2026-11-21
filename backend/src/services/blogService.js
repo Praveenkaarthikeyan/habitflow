@@ -1,45 +1,77 @@
-import { blogStore } from "../models/blogStore.js";
+import { Blog } from "../models/Blog.js";
 import AppError from "../utils/AppError.js";
+import escapeRegex from "../utils/escapeRegex.js";
 
-function getOrThrow(id) {
-  const blog = blogStore.findById(id);
-  if (!blog) throw new AppError(404, `Blog with id ${id} was not found.`);
+// Shape sent to the frontend (same fields as before, so React barely changes).
+const toBlog = (b) => ({
+  id: b.id,
+  title: b.title,
+  content: b.content,
+  authorId: String(b.author?._id ?? b.author ?? ""),
+  authorName: b.author?.name ?? "Unknown author",
+  createdAt: b.createdAt,
+  updatedAt: b.updatedAt,
+});
+
+async function getOrThrow(id) {
+  const blog = await Blog.findById(id).populate("author", "name");
+  if (!blog) throw new AppError(404, "Blog not found.");
   return blog;
 }
 
 // Only the author may change or delete a blog.
-function assertOwner(blog, userId) {
-  if (blog.authorId !== userId) throw new AppError(403, "You can only modify your own blogs.");
+function assertOwner(blog, user) {
+  if (String(blog.author?._id) !== user.id) throw new AppError(403, "You can only modify your own blogs.");
 }
 
 export const blogService = {
-  list({ search, page = 1, limit = 10 }) {
-    let items = [...blogStore.findAll()].reverse(); // newest first
+  async list({ search, page = 1, limit = 10 }) {
+    const filter = {};
     if (search) {
-      const q = String(search).toLowerCase();
-      items = items.filter((b) => b.title.toLowerCase().includes(q) || b.content.toLowerCase().includes(q));
+      const rx = new RegExp(escapeRegex(String(search).slice(0, 100)), "i");
+      filter.$or = [{ title: rx }, { content: rx }];
     }
+
     const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 50);
     const safePage = Math.max(parseInt(page, 10) || 1, 1);
-    const total = items.length;
-    const start = (safePage - 1) * safeLimit;
+
+    const [items, total] = await Promise.all([
+      Blog.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((safePage - 1) * safeLimit)
+        .limit(safeLimit)
+        .populate("author", "name"),
+      Blog.countDocuments(filter),
+    ]);
+
     return {
-      items: items.slice(start, start + safeLimit),
+      items: items.map(toBlog),
       pagination: { page: safePage, limit: safeLimit, total, totalPages: Math.max(1, Math.ceil(total / safeLimit)) },
     };
   },
 
-  get: (id) => getOrThrow(id),
-
-  create: (data, user) => blogStore.create({ ...data, authorId: user.id, authorName: user.name }),
-
-  update(id, data, user) {
-    assertOwner(getOrThrow(id), user.id);
-    return blogStore.update(id, data);
+  async get(id) {
+    return toBlog(await getOrThrow(id));
   },
 
-  remove(id, user) {
-    assertOwner(getOrThrow(id), user.id);
-    blogStore.remove(id);
+  async create(data, user) {
+    const blog = await Blog.create({ ...data, author: user.id });
+    await blog.populate("author", "name");
+    return toBlog(blog);
+  },
+
+  async update(id, data, user) {
+    const blog = await getOrThrow(id);
+    assertOwner(blog, user);
+    blog.title = data.title;
+    blog.content = data.content;
+    await blog.save();
+    return toBlog(blog);
+  },
+
+  async remove(id, user) {
+    const blog = await getOrThrow(id);
+    assertOwner(blog, user);
+    await blog.deleteOne();
   },
 };
