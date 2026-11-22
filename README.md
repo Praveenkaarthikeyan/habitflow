@@ -2,8 +2,8 @@
 
 A full-stack blogging and productivity app built with the MERN stack. Users can register, write and manage blog posts with categories and search, view their own dashboard, and manage their profile.
 
-**Live demo:** https://YOUR-APP.vercel.app
-**API:** https://YOUR-API.onrender.com/api/health
+**Live demo:** https://habitflow-eight-green.vercel.app/
+**API:** https://habitflow-api-5xjj.onrender.com/
 
 > The free API host sleeps when idle, so the first request after a pause can take up to a minute.
 
