@@ -27,7 +27,6 @@ export default function Navbar({ onMenuClick }) {
         <button className="icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
           {theme === "light" ? "🌙" : "☀️"}
         </button>
-        <Link to="/notifications" className="icon-btn" aria-label="Notifications">🔔</Link>
         <Link to="/profile" aria-label="Profile"><Avatar size={38} /></Link>
         <button className="btn btn-sm btn-ghost" onClick={handleLogout}>Log out</button>
       </div>

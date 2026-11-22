@@ -2,19 +2,20 @@ import { NavLink } from "react-router-dom";
 import Avatar from "./Avatar.jsx";
 import { useProfile } from "../context/ProfileContext.jsx";
 
+// ready: false hides a page that doesn't have a real backend yet. Flip to true when it does.
 const links = [
-  { to: "/", label: "Dashboard", icon: "🏠" },
-  { to: "/habits", label: "Habits", icon: "✅" },
-  { to: "/learning", label: "Learning Tracker", icon: "📚" },
-  { to: "/time", label: "Time Management", icon: "⏱️" },
-  { to: "/expenses", label: "Expense Tracker", icon: "💰" },
-  { to: "/statistics", label: "Statistics", icon: "📊" },
-  { to: "/friends", label: "Friends", icon: "👥" },
-  { to: "/notifications", label: "Notifications", icon: "🔔" },
-  { to: "/blogs", label: "Blogs", icon: "✍️" },
-  { to: "/my-blogs", label: "My Blogs", icon: "📝" },
-  { to: "/profile", label: "Profile & Settings", icon: "⚙️" },
-];
+  { to: "/", label: "Dashboard", icon: "🏠", ready: true },
+  { to: "/blogs", label: "Blogs", icon: "✍️", ready: true },
+  { to: "/my-blogs", label: "My Blogs", icon: "📝", ready: true },
+  { to: "/habits", label: "Habits", icon: "✅", ready: true },
+  { to: "/learning", label: "Learning Tracker", icon: "📚", ready: true },
+  { to: "/time", label: "Time Management", icon: "⏱️", ready: true },
+  { to: "/expenses", label: "Expense Tracker", icon: "💰", ready: true },
+  { to: "/statistics", label: "Statistics", icon: "📊", ready: true },
+  { to: "/friends", label: "Friends", icon: "👥", ready: true },
+  { to: "/notifications", label: "Notifications", icon: "🔔", ready: true },
+  { to: "/profile", label: "Profile & Settings", icon: "⚙️", ready: true },
+].filter((l) => l.ready);
 
 export default function Sidebar({ expanded, mobileOpen, onToggle, onNavigate }) {
   const { profile } = useProfile();

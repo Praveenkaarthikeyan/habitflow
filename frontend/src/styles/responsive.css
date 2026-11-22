@@ -1,0 +1,33 @@
+/* Never force a column wider than the screen */
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); }
+
+/* Long words or URLs in blog text must wrap, not stretch the page */
+.blog-content, .blog-card h3, .blog-detail h1, .widget-body { overflow-wrap: anywhere; }
+.row input { min-width: 0; }
+img { max-width: 100%; }
+
+@media (max-width: 860px) {
+  .navbar-right .muted { display: none; }   /* hide the user name, keep the buttons */
+  .navbar-right { gap: 10px; }
+  .page-header h1 { font-size: 1.35rem; }
+  .banner { padding: 16px; }
+  .banner h1 { font-size: 1.3rem; }
+  .btn { min-height: 40px; }                /* comfortable touch targets */
+  .btn-sm { min-height: 36px; }
+  .chip { padding: 8px 14px; }
+  .modal { padding: 18px; }
+  .preview-box { justify-content: center; text-align: center; }
+}
+
+@media (max-width: 420px) {
+  .page { padding: 14px 10px; }
+  .card { padding: 14px; }
+  .auth-wrap { padding: 12px; }
+}
+
+/* Respect users who turn animations off */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
